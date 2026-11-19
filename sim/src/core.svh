@@ -1,42 +1,63 @@
 `ifndef CORE_SVH
 `define CORE_SVH
 
-// Instruction Opcodes
-`define INSTR_NOP   0
-`define INSTR_MOV   1
-`define INSTR_MOVI  2
-`define INSTR_LEA   3
+`include "src/indexes.svh"
 
-// Registers (1 - 15), Expansion Units (16 - 31), 0 (Nothing)
-`define R_ZERO  0
+interface ControlSignals_if;
 
-`define R_R1    1
-`define R_R2    2
-`define R_R3    3
-`define R_R4    4
+// Memory
+    logic memoryL2_we;              // Layer 2 (I/O...Display)
+    logic memoryL1_oe;              // Layer 1 (ROM)
+    logic memoryL0_we, memoryL0_oe; // Layer 0 (RAM)
+    logic byte_low_high_e;          // [0: low, 1: high]
 
-`define R_SP    5
-`define R_BP    6
+// Bus Write Enables / Output Enables (bwe, boe)
+    logic acc_bwe, acc_boe;
+    logic t1_bwe, t1_boe;
+    logic mar_bwe;
+    logic ip_bwe;
+    logic ir_bwe;
 
-`define R_CS    7
-`define R_DS    8
-`define R_SS    9
-`define R_ES    10
+    logic flags_we;
 
-`define R_IP    11
-`define R_IR    12
-`define R_AR    13
+// ALU
+    logic[3:0] alu_options; // [0: add, 1: 2s compliment for sub, 2: and, 3: xor]
 
-`define R_IRQ   14
+// Ports
+    modport control (
+        output memoryL2_we,
+        output memoryL1_oe,
+        output memoryL0_we, memoryL0_oe
+        output byte_low_high_e,
 
-`define R_XU1   16 // Memory
-`define R_XU2   17 // Drive
-`define R_XU3   18
-`define R_XU4   19
+        output acc_bwe, acc_boe,
+        output mar_bwe, mar_boe,
+        output ip_bwe,
+        output ir_bwe,
 
-// Flags (flags[index])
-`define F_ZERO          0 // Z
-`define F_CARRY         1 // C
-`define F_SIGN          2 // S
+        output flags_we,
+
+        output alu_options
+    );
+
+    modport register (
+        input acc_bwe, acc_boe
+        input mar_bwe, mar_boe
+
+        input ip_bwe
+        input ir_bwe
+
+        input flags_we
+    );
+
+    modport memory (
+        input memoryL2_we,
+        input memoryL1_oe,
+        input memoryL0_we, memoryL0_oe
+
+        input byte_low_high_e
+    );
+
+endinterface
 
 `endif
